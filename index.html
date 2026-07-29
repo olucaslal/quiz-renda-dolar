@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Diagnóstico da Renda em Dólar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --roxo:#7C3AED; --roxo-d:#6d28d9; --limao:#C4F000;
+    --gain:#16a34a; --pain:#ef4444; --ink:#0b0b0f; --muted:#6b7280;
+    --bg:#ffffff; --card:#ffffff; --line:#e6e6ea;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#f4f4f6;color:var(--ink);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:600px;margin:0 auto;min-height:100dvh;background:var(--bg);display:flex;flex-direction:column;position:relative}
+  .topbar{height:6px;background:#1a1a1f}
+  .progress{height:8px;background:#e9e9ee;margin:16px 20px 0;border-radius:99px;overflow:hidden}
+  .progress>span{display:block;height:100%;width:0;background:var(--ink);border-radius:99px;transition:width .35s ease}
+  .screen{flex:1;display:flex;flex-direction:column;justify-content:center;padding:28px 20px 120px;animation:fade .35s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  h1,h2,.h{font-family:'Poppins',sans-serif;font-weight:800;line-height:1.15;letter-spacing:-.01em}
+  .banner{background:#fff6e0;color:#8a6d1e;font-family:'Poppins';font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;text-align:center;padding:12px 16px;border-radius:12px;margin-bottom:22px}
+  h1{font-size:27px;text-align:center;margin-bottom:10px}
+  .sub{text-align:center;color:var(--muted);font-size:15px;margin-bottom:22px}
+  h2{font-size:23px;text-align:center;margin-bottom:6px}
+  .qsub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:22px;padding:0 6px}
+  .gain{color:var(--gain)} .pain{color:var(--pain)} .rx{color:var(--roxo)}
+  .opts{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+  .opt{display:flex;align-items:center;gap:14px;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:16px 16px;font-size:16px;font-weight:500;cursor:pointer;transition:.15s;text-align:left}
+  .opt:hover{border-color:var(--roxo);transform:translateY(-1px);box-shadow:0 6px 18px rgba(124,58,237,.10)}
+  .opt .em{font-size:22px;width:30px;text-align:center;flex:none}
+  .interstitial h2{font-size:24px}
+  .box{background:#f7f7fb;border:1px solid var(--line);border-radius:16px;padding:20px;margin:14px 0;text-align:center;font-size:16px;line-height:1.5}
+  .big{font-size:34px;font-family:'Poppins';font-weight:900;color:var(--gain);display:block;margin:6px 0}
+  .fine{font-size:11px;color:#9aa0a6;text-align:center;margin-top:10px}
+  .field{margin:14px 0}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:600}
+  .field input{width:100%;padding:15px 16px;border:1.5px solid var(--line);border-radius:12px;font-size:16px;font-family:inherit}
+  .field input:focus{outline:none;border-color:var(--roxo)}
+  .cta{position:fixed;left:0;right:0;bottom:0;max-width:600px;margin:0 auto;padding:14px 20px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(#ffffff00,#fff 22%)}
+  .btn{width:100%;border:none;border-radius:14px;padding:17px;font-family:'Poppins';font-weight:800;font-size:17px;color:#fff;background:var(--roxo);cursor:pointer;box-shadow:0 8px 22px rgba(124,58,237,.28)}
+  .btn:active{transform:translateY(1px)}
+  .btn.green{background:var(--gain);box-shadow:0 8px 22px rgba(22,163,74,.28)}
+  /* loading */
+  .load{margin-top:8px}
+  .load .bar{height:12px;background:#e9e9ee;border-radius:99px;overflow:hidden;margin:16px 0 10px}
+  .load .bar>span{display:block;height:100%;width:0;background:var(--ink);border-radius:99px}
+  .load .pct{font-family:'Poppins';font-weight:800;text-align:right;font-size:14px}
+  .steps{list-style:none;margin-top:18px;display:flex;flex-direction:column;gap:12px}
+  .steps li{font-size:14px;color:var(--muted);opacity:.35;transition:.3s;display:flex;gap:10px;align-items:center}
+  .steps li.on{opacity:1;color:var(--ink)}
+  .steps li b{color:var(--gain)}
+  /* result */
+  .qualify{background:var(--limao);color:#1a1a00;font-family:'Poppins';font-weight:800;text-align:center;padding:18px;border-radius:16px;font-size:18px;line-height:1.25;margin-bottom:20px}
+  .cmp{display:grid;grid-template-columns:1fr;gap:12px;margin-top:6px}
+  .row{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .row .lbl{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px}
+  .meter{display:flex;gap:8px;align-items:center}
+  .meter .m{flex:1;height:9px;border-radius:99px;background:#eee;position:relative;overflow:hidden}
+  .meter .m>i{position:absolute;left:0;top:0;bottom:0;border-radius:99px}
+  .m.bad>i{background:var(--pain)} .m.good>i{background:var(--gain)}
+  .meter .t{font-size:11px;font-weight:700;width:52px;text-align:center}
+  .t.bad{color:var(--pain)} .t.good{color:var(--gain)}
+  /* recap */
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+  .rc{background:#f7f7fb;border:1px solid var(--line);border-radius:14px;padding:14px;font-size:13px;line-height:1.35}
+  .rc b{display:block;font-family:'Poppins';font-weight:700;margin-bottom:4px;font-size:13px}
+  .rc.g b{color:var(--gain)} .rc.r b{color:var(--pain)}
+  /* offer */
+  .offer h1{font-size:24px}
+  .price{text-align:center;margin:18px 0}
+  .price .from{color:var(--muted);text-decoration:line-through;font-size:16px}
+  .price .now{font-family:'Poppins';font-weight:900;font-size:44px;color:var(--gain);display:block;line-height:1}
+  .price .x{color:var(--muted);font-size:14px}
+  .list{list-style:none;margin:16px 0}
+  .list li{padding:10px 0;border-bottom:1px solid var(--line);font-size:15px;display:flex;gap:10px}
+  .list li:before{content:"✅"}
+  .seal{text-align:center;background:#f7f7fb;border:1px dashed var(--line);border-radius:14px;padding:16px;margin:16px 0;font-size:14px;color:var(--muted)}
+  .seal b{color:var(--ink)}
+  .faq{margin-top:12px}
+  .faq details{border-bottom:1px solid var(--line);padding:12px 2px}
+  .faq summary{font-weight:600;cursor:pointer;font-size:15px;list-style:none}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq p{color:var(--muted);font-size:14px;margin-top:8px;line-height:1.5}
+  .who{font-size:13px;color:var(--muted);text-align:center;margin:18px 0;line-height:1.5}
+  .urg{background:#fff3f3;color:var(--pain);border-radius:10px;padding:10px;text-align:center;font-size:13px;font-weight:600;margin-top:12px}
+  .foot{text-align:center;color:#b8bcc2;font-size:11px;padding:24px 12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar"></div>
+  <div class="progress"><span id="prog"></span></div>
+  <div class="screen" id="screen"></div>
+  <div class="cta" id="cta" style="display:none"></div>
+</div>
+
+<script>
+/* ===== CONFIG — troque estes 2 valores ===== */
+const CHECKOUT_URL = "https://pay.hub.la/SEU-CHECKOUT"; // TODO: link do checkout Hubla (R$29,90)
+const PIXEL_ID = ""; // TODO: ID do Pixel do Meta (opcional)
+/* =========================================== */
+
+const state = { i:0, a:{} };
+
+const screens = [
+  { t:"intro", banner:"Preencha o teste e descubra seu plano pra sair do real",
+    title:'Descubra em 2 minutos quanto o real já <span class="pain">corroeu</span> o seu dinheiro — e o 1º passo pra <span class="gain">blindar em dólar</span>.',
+    sub:"Responda pra começar 👇",
+    key:"invest", opts:[["✅","Sim, já invisto"],["❌","Ainda não invisto"],["🐷","Só deixo na poupança"]] },
+
+  { t:"q", key:"situacao", title:"Onde está a maior parte do seu dinheiro hoje?",
+    sub:"Saber seu ponto de partida é o que traça o caminho mais curto.",
+    opts:[["💰","Poupança ou conta corrente"],["🏦","Renda fixa (CDB, Tesouro)"],["📈","Ações ou FIIs no Brasil"],["🌎","Já tenho algo em dólar / fora"]] },
+
+  { t:"q", key:"dor", title:"Você sente que seu dinheiro perde valor mesmo estando “guardado”?",
+    sub:"Não é impressão. Se está todo em real, provavelmente está mesmo.",
+    opts:[["😟","Sim, sinto isso"],["🤔","Às vezes penso nisso"],["🙂","Nunca tinha parado pra pensar"]] },
+
+  { t:"inter", title:'R$5.000 na poupança há 10 anos hoje valem <span class="pain">MENOS</span> que isso.',
+    body:'Os mesmos R$5.000 nas maiores empresas do mundo, em dólar, teriam virado <span class="big">cerca de R$33 mil</span> A diferença não é sorte — é onde o dinheiro estava.',
+    fine:"Rentabilidade passada não garante retorno futuro. Valores aproximados, últimos ~10 anos.",
+    btn:"Faz sentido, continuar →" },
+
+  { t:"q", key:"crenca", title:"Na sua cabeça, o que é preciso pra investir no exterior?",
+    sub:"Pode ser sincero — essa resposta muda o seu plano.",
+    opts:[["💸","Muito dinheiro"],["🇺🇸","Saber inglês"],["🎓","Ser experiente no mercado"],["🤷","Não sei, nunca pesquisei"]] },
+
+  { t:"q", key:"capital", title:"Quanto você teria disponível pra começar hoje?",
+    sub:"Não precisa ser muito. Isso só ajusta o plano ao seu momento.",
+    opts:[["💵","Menos de R$500"],["💰","Entre R$500 e R$5.000"],["💰","Entre R$5.000 e R$30.000"],["🔥","Mais de R$30.000"]] },
+
+  { t:"inter", title:'Seja qual for a sua resposta, <span class="gain">não precisa ser rico</span>.',
+    body:'Hoje dá pra começar com <b>50 dólares</b>, nas maiores empresas do mundo, sem falar inglês. O que separa quem faz de quem não faz não é dinheiro — é ter o passo a passo na mão.',
+    btn:"Continuar →" },
+
+  { t:"q", key:"dornicho", title:"Você já deixou de aproveitar algo (uma viagem, uma compra, um objetivo) porque o real desvalorizou ou o dólar disparou?",
+    opts:[["😔","Sim, já senti isso na pele"],["🤷","Não / não reparei"]] },
+
+  { t:"q", key:"objetivo", title:"Qual é o seu maior objetivo com o dólar?",
+    sub:"O destino define a rota. Escolha o que mais pesa hoje.",
+    opts:[["🛡️","Proteger o que já tenho"],["📈","Render mais que no Brasil"],["🌎","Diversificar e sair do risco Brasil"],["🎓","Aprender do zero como funciona"]] },
+
+  { t:"q", key:"desejo", title:"Se o seu dinheiro já estivesse protegido em dólar, o que isso mudaria pra você?",
+    opts:[["😌","Mais tranquilidade, menos medo do Brasil"],["📈","Ver o patrimônio crescer, não derreter"],["✈️","Manter meu poder de compra lá fora"],["👨‍👩‍👧","Mais segurança pra minha família"]] },
+
+  { t:"q", key:"prontidao", title:"Se existisse um passo a passo simples pra começar em dólar do zero, você começaria?",
+    sub:"Sem enrolação, sem promessa de ficar rico. Só o caminho.",
+    opts:[["🔥","Sim, quero começar agora"],["😅","Sim, mas preciso entender melhor"],["🤔","Talvez, se for simples"]] },
+
+  { t:"capture" },
+  { t:"loading" },
+  { t:"result" },
+  { t:"recap" },
+  { t:"offer" }
+];
+
+const el = id => document.getElementById(id);
+const screenEl = el("screen"), ctaEl = el("cta");
+
+function setProgress(){ el("prog").style.width = Math.round((state.i)/(screens.length-1)*100)+"%"; }
+function fire(ev){ try{ if(window.fbq) fbq('track', ev); }catch(e){} }
+
+function go(n){ state.i = n; render(); window.scrollTo(0,0); }
+function next(){ if(state.i < screens.length-1) go(state.i+1); }
+function pick(key,val){ state.a[key]=val; next(); }
+
+function capitalPhrase(){
+  const c = state.a.capital || "";
+  if(c.includes("Menos de R$500")) return "menos de R$500";
+  if(c.includes("500 e R$5")) return "o que você já tem separado";
+  if(c.includes("5.000 e R$30")) return "os seus alguns milhares";
+  if(c.includes("Mais de R$30")) return "o capital que você já tem";
+  return "o que você tem hoje";
+}
+function objPhrase(){ return (state.a.objetivo||"proteger seu dinheiro").toLowerCase(); }
+
+function render(){
+  setProgress();
+  const s = screens[state.i];
+  ctaEl.style.display="none"; ctaEl.innerHTML="";
+
+  if(s.t==="intro" || s.t==="q"){
+    screenEl.innerHTML =
+      (s.banner?`<div class="banner">${s.banner}</div>`:"")+
+      `<h1 style="${s.t==='q'?'font-size:23px':''}">${s.title}</h1>`+
+      (s.sub?`<div class="${s.t==='q'?'qsub':'sub'}">${s.sub}</div>`:"")+
+      `<div class="opts">`+ s.opts.map((o,idx)=>
+        `<button class="opt" data-i="${idx}"><span class="em">${o[0]}</span><span>${o[1]}</span></button>`).join("")+`</div>`;
+    screenEl.querySelectorAll(".opt").forEach(b=>b.onclick=()=>pick(s.key, s.opts[+b.dataset.i][1]));
+  }
+
+  else if(s.t==="inter"){
+    screenEl.innerHTML =
+      `<div class="interstitial"><h2>${s.title}</h2>`+
+      `<div class="box">${s.body}</div>`+
+      (s.fine?`<div class="fine">${s.fine}</div>`:"")+`</div>`;
+    ctaEl.style.display="block";
+    ctaEl.innerHTML=`<button class="btn">${s.btn}</button>`;
+    ctaEl.querySelector(".btn").onclick=next;
+  }
+
+  else if(s.t==="capture"){
+    screenEl.innerHTML =
+      `<h2>Última etapa antes do seu diagnóstico 🎯</h2>`+
+      `<div class="qsub">Pra onde eu envio o resultado + o primeiro passo pra começar?</div>`+
+      `<div class="field"><label>Seu nome</label><input id="f_nome" placeholder="Digite seu nome"></div>`+
+      `<div class="field"><label>Seu WhatsApp (com DDD)</label><input id="f_wpp" inputmode="tel" placeholder="(11) 9 9999-9999"></div>`+
+      `<div class="field"><label>Seu melhor e-mail</label><input id="f_email" inputmode="email" placeholder="voce@email.com"></div>`+
+      `<div class="fine">Sem spam. É por aqui que eu te mando o diagnóstico e tiro dúvidas.</div>`;
+    ctaEl.style.display="block";
+    ctaEl.innerHTML=`<button class="btn">VER MEU DIAGNÓSTICO →</button>`;
+    ctaEl.querySelector(".btn").onclick=()=>{
+      state.a.nome=(el("f_nome").value||"").trim();
+      state.a.wpp=el("f_wpp").value; state.a.email=el("f_email").value;
+      if(!state.a.nome){ el("f_nome").focus(); return; }
+      fire('Lead');
+      next();
+    };
+  }
+
+  else if(s.t==="loading"){
+    screenEl.innerHTML =
+      `<h2>Montando seu diagnóstico personalizado…</h2>`+
+      `<div class="load"><div class="pct" id="pct">0%</div><div class="bar"><span id="lb"></span></div></div>`+
+      `<ul class="steps" id="steps">`+
+      ['Calculando quanto o real já <b>corroeu</b> do seu dinheiro…',
+       'Definindo seu <b>primeiro passo</b> pra investir em dólar do zero…',
+       'Selecionando os <b>ativos globais</b> que fazem sentido pro seu perfil…',
+       'Preparando como abrir conta <b>sem pagar IOF à toa</b>…',
+       'Ajustando o plano pro <b>valor que você tem hoje</b>…'
+      ].map(t=>`<li>🔄 <span>${t}</span></li>`).join("")+`</ul>`;
+    let p=0; const steps=[...document.querySelectorAll('#steps li')]; let si=0;
+    const iv=setInterval(()=>{
+      p=Math.min(100,p+2); el("lb").style.width=p+"%"; el("pct").textContent=p+"%";
+      const idx=Math.floor(p/20); if(idx>si && steps[idx-1]){steps[idx-1].classList.add('on'); si=idx;}
+      if(p>=100){ clearInterval(iv); steps.forEach(x=>x.classList.add('on')); setTimeout(next,650); }
+    },55);
+  }
+
+  else if(s.t==="result"){
+    const rows=[
+      ["Exposição ao risco Brasil","alta","baixa",85,20],
+      ["Proteção em dólar","zero","ativa",8,90],
+      ["Poder de compra no longo prazo","caindo","protegido",25,88]
+    ];
+    screenEl.innerHTML =
+      `<div class="qualify">Com base nas suas respostas, você está pronto pra começar a <u>proteger o seu dinheiro em dólar</u>.</div>`+
+      `<div style="text-align:center;font-weight:700;font-family:Poppins;margin-bottom:10px">Hoje &nbsp;→&nbsp; <span class="gain">Com o Mapa</span></div>`+
+      `<div class="cmp">`+ rows.map(r=>
+        `<div class="row"><div class="lbl">${r[0]}</div>
+          <div class="meter">
+            <span class="t bad">${r[1]}</span>
+            <div class="m bad"><i style="width:${r[3]}%"></i></div>
+            <span style="color:#bbb">→</span>
+            <div class="m good"><i style="width:${r[4]}%"></i></div>
+            <span class="t good">${r[2]}</span>
+          </div></div>`).join("")+`</div>`;
+    ctaEl.style.display="block";
+    ctaEl.innerHTML=`<button class="btn">Continuar →</button>`;
+    ctaEl.querySelector(".btn").onclick=next;
+  }
+
+  else if(s.t==="recap"){
+    screenEl.innerHTML =
+      `<h2>Você respondeu que…</h2><div class="qsub">Por isso o seu plano faz sentido:</div>`+
+      `<div class="cards">`+
+      `<div class="rc g"><b>Tem ${capitalPhrase()} pra começar</b>É suficiente pra dar o primeiro passo em dólar.</div>`+
+      `<div class="rc r"><b>Seu dinheiro está exposto ao real</b>Hoje, perdendo valor sem você ver.</div>`+
+      `<div class="rc g"><b>Seu objetivo: ${objPhrase()}</b>Totalmente possível com método.</div>`+
+      `<div class="rc g"><b>Você quer começar</b>Então o momento é agora.</div>`+
+      `</div>`+
+      `<div class="qualify" style="margin-top:18px;font-size:16px">Por isso, você está pronto pra começar. 🚀</div>`;
+    ctaEl.style.display="block";
+    ctaEl.innerHTML=`<button class="btn green">VER O MEU PLANO →</button>`;
+    ctaEl.querySelector(".btn").onclick=next;
+  }
+
+  else if(s.t==="offer"){
+    const nome = state.a.nome ? state.a.nome.split(" ")[0] : "";
+    screenEl.innerHTML =
+      `<div class="offer">`+
+      `<h1>${nome?nome+", ":""}aqui está o seu plano:<br><span class="rx">O Mapa da Renda em Dólar</span></h1>`+
+      `<div class="sub">O passo a passo pra sair do risco Brasil e investir em dólar do zero — mesmo começando com ${capitalPhrase()}, mesmo sem saber inglês.</div>`+
+      `<div class="box" style="font-weight:600">Não é promessa de ficar rico. É <span class="gain">proteção e método</span>.</div>`+
+      `<ul class="list">
+        <li>5 módulos, do zero ao seu primeiro aporte em dólar</li>
+        <li>Radar Internacional (aula mensal do que move o mercado)</li>
+        <li>Blindagem do Bitcoin</li>
+        <li>Aula: gastar em dólar sem pagar IOF à toa</li>
+        <li>Grupo no WhatsApp (conteúdo + tira-dúvidas)</li>
+      </ul>`+
+      `<div class="price"><span class="from">De R$497</span><span class="now">R$29,90</span><span class="x">à vista ou 12x de R$2,96</span></div>`+
+      `<div class="seal">🔒 <b>Garantia de 7 dias.</b> Entrou, não fez sentido, é só pedir o reembolso — sem burocracia.</div>`+
+      `<div class="who"><b>Quem é o Ric:</b> economista, mestrado na Europa, passou pelo mercado bancário. Hoje lê o mercado todo dia e mostra as próprias operações.</div>`+
+      `<div class="faq">
+        <details><summary>Preciso de muito dinheiro?</summary><p>Não — dá pra começar com 50 dólares.</p></details>
+        <details><summary>Preciso saber inglês?</summary><p>Não — o passo a passo é todo em português, mastigado.</p></details>
+        <details><summary>Sou iniciante total, dá conta?</summary><p>Sim, começa do absoluto zero.</p></details>
+        <details><summary>Quando recebo o acesso?</summary><p>Na hora, após o pagamento.</p></details>
+        <details><summary>E se não for pra mim?</summary><p>7 dias de garantia, reembolso sem burocracia.</p></details>
+      </div>`+
+      `<div class="urg">R$29,90 é a condição de lançamento — quando o carrinho fechar, o preço sobe.</div>`+
+      `<div class="foot">Conteúdo educacional. Nada aqui é recomendação de investimento.</div>`+
+      `</div>`;
+    ctaEl.style.display="block";
+    ctaEl.innerHTML=`<button class="btn green">QUERO MEU ACESSO POR R$29,90 →</button>`;
+    ctaEl.querySelector(".btn").onclick=()=>{ fire('InitiateCheckout'); window.location.href=CHECKOUT_URL; };
+  }
+}
+
+/* Meta Pixel (opcional) */
+if(PIXEL_ID){
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', PIXEL_ID); fbq('track', 'PageView');
+}
+
+render();
+</script>
+</body>
+</html>
