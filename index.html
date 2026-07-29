@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
 <title>Diagnóstico da Renda em Dólar</title>
+<!-- UTMify — captura de UTMs e atribuição da venda (Hubla) -->
+<script src="https://cdn.utmify.com.br/scripts/utms/latest.js" data-utmify-prevent-subids async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
@@ -309,7 +311,12 @@ function render(){
       `</div>`;
     ctaEl.style.display="block";
     ctaEl.innerHTML=`<button class="btn green">QUERO MEU ACESSO POR R$29,90 →</button>`;
-    ctaEl.querySelector(".btn").onclick=()=>{ fire('InitiateCheckout'); window.location.href=CHECKOUT_URL; };
+    ctaEl.querySelector(".btn").onclick=()=>{
+      fire('InitiateCheckout');
+      var qs=window.location.search.replace(/^\?/,'');
+      var url=CHECKOUT_URL+(qs?((CHECKOUT_URL.indexOf('?')>-1?'&':'?')+qs):'');
+      window.location.href=url;
+    };
   }
 }
 
